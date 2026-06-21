@@ -1,7 +1,5 @@
 # AI-Based Predictive Maintenance System for Real-Time Fault Diagnosis of Rotating Machinery
 
-![Project Banner](images/fan_test_rig.jpg)
-
 ## Overview
 
 This project presents a low-cost AI-based predictive maintenance system for rotating machinery using vibration analysis, machine learning, and embedded sensing.
