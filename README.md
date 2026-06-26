@@ -96,39 +96,85 @@ Twenty-seven vibration features were extracted:
 * Spectral Entropy
 
 ---
-
 ## Machine Learning Models
 
-The following models were evaluated:
+Three different machine learning and deep learning models were investigated to evaluate their suitability for rotating machinery fault diagnosis.
 
-* Random Forest
-* Extra Trees
-* Deep Neural Network (DNN)
+### Random Forest
+Random Forest served as the baseline ensemble learning model due to its robustness, interpretability, and strong performance on vibration-based classification tasks. It provided excellent accuracy while requiring minimal feature preprocessing.
 
-The Extra Trees classifier was selected for deployment due to its high accuracy and low computational complexity.
+### Extra Trees (Final Deployment Model)
+The Extra Trees (Extremely Randomized Trees) classifier achieved the best balance between classification accuracy, inference speed, and computational efficiency. Owing to its lightweight architecture and fast prediction time, it was selected as the final model for deployment in the real-time monitoring system.
 
----
-
-## Results
-
-### Classification Performance
-
-| Metric                    | Value  |
-| ------------------------- | ------ |
-| Cross Validation F1 Score | 99.96% |
-| Test Accuracy             | 99.93% |
-| Cross-Machine Accuracy    | 93.6%  |
-
-### Confusion Matrix
-
-![Confusion Matrix](images/confusion_matrix.png)
-
-### Feature Importance
-
-![Feature Importance](images/feature_importance.png)
+### Deep Neural Network (DNN)
+A fully connected Deep Neural Network was implemented as a comparative deep learning model. Although it achieved competitive classification performance, the higher computational complexity and memory requirements made it less suitable for real-time edge deployment compared to the Extra Trees classifier.
 
 ---
 
+## Model Performance
+
+The final Extra Trees classifier was trained using the 27-dimensional handcrafted feature set extracted from 7,443 labelled vibration windows representing ten operating conditions.
+
+| Performance Metric | Value |
+|--------------------|------:|
+| **5-Fold Cross-Validation (F1-Macro)** | **99.96%** |
+| **Test Accuracy** | **99.93%** |
+| **Cross-Machine Accuracy** | **93.6%** |
+
+These results demonstrate excellent classification performance while maintaining good generalization to an unseen fan, making the model suitable for practical predictive maintenance applications.
+
+---
+
+## Confusion Matrix
+
+The confusion matrix shows excellent class-wise separability across all ten operating conditions with minimal misclassification between similar fault types.
+
+<p align="center">
+  <img src="images/confusion_matrix.png" width="650">
+</p>
+
+---
+
+## Feature Importance
+
+Feature importance analysis revealed that the classifier primarily relies on physically meaningful vibration characteristics rather than arbitrary statistical correlations.
+
+The most influential features include:
+
+- **Z/X RMS Ratio (`az_ax_rms_ratio`)**
+- **X-axis RMS (`rms_ax`)**
+- **Y-axis RMS (`rms_ay`)**
+- **Y/X RMS Ratio (`ay_ax_rms_ratio`)**
+- **Z-axis RMS (`rms_az`)**
+- **Z-axis Autocorrelation (1 Revolution)**
+
+These features effectively distinguish imbalance, looseness, blade damage, bearing contamination, and air obstruction conditions.
+
+<p align="center">
+  <img src="images/feature_importance.png" width="650">
+</p>
+
+---
+
+## Real-Time Fault Detection
+
+The trained Extra Trees classifier is integrated with a Python-based real-time inference framework connected to an ESP32 and MPU6050 triaxial accelerometer.
+
+### Real-Time Pipeline
+
+- Live vibration acquisition from the ESP32
+- Sliding-window segmentation (1024 samples)
+- Feature extraction using the same 27-feature pipeline as training
+- Feature standardization using the trained scaler
+- Real-time fault prediction using the Extra Trees classifier
+- Majority-voting over consecutive windows for stable predictions
+- Continuous monitoring and fault reporting
+
+The system is capable of identifying all ten operating conditions in real time, making it suitable for low-cost edge-based predictive maintenance applications.
+
+<p align="center">
+  <img src="images/realtime_prediction.png" width="750">
+</p>
 ## Real-Time Fault Detection
 
 The trained model is integrated with a real-time Python inference framework.
